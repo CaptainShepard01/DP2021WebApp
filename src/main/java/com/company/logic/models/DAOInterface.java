@@ -33,6 +33,7 @@ public interface DAOInterface {
 
     public List<Employee> getEmployees();
     boolean setDepartmentUnit(DepartmentUnit departmentUnit);
+    boolean setDepartmentUnit(int id, String newName);
     boolean addEmployee(String name, boolean isDepartmentHead, int lengthOfEmployment, String unitName);
 
     boolean deleteEmployee(int id);

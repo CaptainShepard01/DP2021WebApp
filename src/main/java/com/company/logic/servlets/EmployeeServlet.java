@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,6 +58,7 @@ public class EmployeeServlet extends HttpServlet {
     private void searchEmployeeById(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         int idEmployee = Integer.parseInt(req.getParameter("idEmployee"));
+        String operationType = req.getParameter("operation");
         Employee employee = null;
         try {
             employee = daoInterface.findEmployee(idEmployee);
@@ -64,8 +66,13 @@ public class EmployeeServlet extends HttpServlet {
             Logger.getLogger(com.company.logic.servlets.EmployeeServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
         req.setAttribute("employee", employee);
-        req.setAttribute("action", "edit");
-        String nextJSP = "/jsp/new-employee.jsp";
+        req.setAttribute("action", "add");
+        String nextJSP = "/jsp/employee-jsp/new-employee.jsp";
+
+        if(Objects.equals(operationType, "edit")) {
+            nextJSP = "/jsp/employee-jsp/edit-employee.jsp";
+            req.setAttribute("action", "edit");
+        }
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(nextJSP);
         dispatcher.forward(req, resp);
     }
@@ -73,7 +80,9 @@ public class EmployeeServlet extends HttpServlet {
     private void searchEmployeeByName(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String employeeName = req.getParameter("employeeName");
-        String unitName = req.getParameter("unitName");
+        int unitId = Integer.parseInt(req.getParameter("unitId"));
+
+        String unitName = daoInterface.findDepartmentUnit(unitId).getName();
         Employee employee = null;
         try {
             employee = daoInterface.findEmployee(employeeName, unitName);
@@ -82,14 +91,14 @@ public class EmployeeServlet extends HttpServlet {
         }
         req.setAttribute("employee", employee);
         req.setAttribute("action", "edit");
-        String nextJSP = "/jsp/new-employee.jsp";
+        String nextJSP = "/jsp/employee-jsp/new-employee.jsp";
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(nextJSP);
         dispatcher.forward(req, resp);
     }
 
     private void forwardListEmployees(HttpServletRequest req, HttpServletResponse resp, List employeeList)
             throws ServletException, IOException {
-        String nextJSP = "/jsp/list-employees.jsp";
+        String nextJSP = "/jsp/employee-jsp/list-employees.jsp";
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(nextJSP);
         req.setAttribute("employeeList", employeeList);
         dispatcher.forward(req, resp);
@@ -107,7 +116,7 @@ public class EmployeeServlet extends HttpServlet {
                 editEmployeeAction(req, resp);
                 break;
             case "remove":
-                removeEmployeeByName(req, resp);
+                removeEmployeeById(req, resp);
                 break;
         }
 
@@ -118,7 +127,9 @@ public class EmployeeServlet extends HttpServlet {
         String name = req.getParameter("name");
         boolean isDepartmentHead = Boolean.parseBoolean(req.getParameter("isDepartmentHead"));
         int lengthOfEmployment = Integer.parseInt(req.getParameter("lengthOfEmployment"));
-        String unitName = req.getParameter("unitName");
+        int unitId = Integer.parseInt(req.getParameter("unitId"));
+
+        String unitName = daoInterface.findDepartmentUnit(unitId).getName();
 
         daoInterface.addEmployee(name, isDepartmentHead, lengthOfEmployment, unitName);
         List<Employee> employeeList = daoInterface.getEmployees();
@@ -131,29 +142,32 @@ public class EmployeeServlet extends HttpServlet {
     private void editEmployeeAction(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String name = req.getParameter("name");
+        int unitId = Integer.parseInt(req.getParameter("unitId"));
+        String newName = req.getParameter("newName");
 
-        Employee employee = new Employee(name, lastName, birthday, role, department, email, idEmployee);
-        employee.setId(idEmployee);
-        boolean success = daoInterface.setEmployee()
+        String unitName = daoInterface.findDepartmentUnit(unitId).getName();
+        boolean success = daoInterface.setEmployee(name, unitName, newName, false);
+
         String message = null;
         if (success) {
             message = "The employee has been successfully updated.";
         }
-        List<Employee> employeeList = employeeService.getAllEmployees();
-        req.setAttribute("idEmployee", idEmployee);
+        List<Employee> employeeList = daoInterface.getEmployees();
         req.setAttribute("message", message);
         forwardListEmployees(req, resp, employeeList);
     }
 
-    private void removeEmployeeByName(HttpServletRequest req, HttpServletResponse resp)
+    private void removeEmployeeById(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        long idEmployee = Integer.valueOf(req.getParameter("idEmployee"));
-        boolean confirm = employeeService.deleteEmployee(idEmployee);
+        int idEmployee = Integer.parseInt(req.getParameter("idEmployee"));
+        boolean confirm = daoInterface.deleteEmployee(idEmployee);
+
         if (confirm){
             String message = "The employee has been successfully removed.";
             req.setAttribute("message", message);
         }
-        List<Employee> employeeList = employeeService.getAllEmployees();
+
+        List<Employee> employeeList = daoInterface.getEmployees();
         forwardListEmployees(req, resp, employeeList);
     }
 

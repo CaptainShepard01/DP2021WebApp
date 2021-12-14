@@ -159,6 +159,13 @@ public class StaffDepartmentDAO implements DAOInterface {
 
     public boolean deleteDepartmentUnit(int id) {
         try {
+            PreparedStatement statement1 = connection.prepareStatement("DELETE FROM EMPLOYEES " +
+                    "WHERE unitid =?"
+            );
+            statement1.setInt(1, id);
+
+            statement1.executeUpdate();
+
             PreparedStatement statement = connection.prepareStatement("DELETE FROM DEPARTMENTUNITS " +
                     "WHERE id = ?");
             statement.setInt(1, id);
@@ -216,6 +223,29 @@ public class StaffDepartmentDAO implements DAOInterface {
             );
             statement.setString(1, departmentUnit.getName());
             statement.setInt(2, departmentUnit.getId());
+            int exec = statement.executeUpdate();
+
+            if (exec > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SQLException e) {
+            System.out.println(" >>     " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean setDepartmentUnit(int id, String newName) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(
+                    "UPDATE DEPARTMENTUNITS " +
+                            "SET name = ?"+
+                            "WHERE id=?"
+            );
+            statement.setString(1, newName);
+            statement.setInt(2, id);
             int exec = statement.executeUpdate();
 
             if (exec > 0) {
@@ -548,7 +578,7 @@ public class StaffDepartmentDAO implements DAOInterface {
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM EMPLOYEES " +
             "WHERE id =?");
-            statement.setString(1, String.valueOf(id));
+            statement.setInt(1, id);
 
             ResultSet resultSet = statement.executeQuery();
 

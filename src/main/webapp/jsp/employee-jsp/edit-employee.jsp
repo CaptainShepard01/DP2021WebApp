@@ -7,14 +7,16 @@
         <div class="container">
             <form action="/employee" method="post"  role="form" data-toggle="validator" >
                 <c:if test ="${empty action}">                        	
-                    <c:set var="action" value="add"/>
+                    <c:set var="action" value="edit"/>
                 </c:if>
                 <input type="hidden" id="action" name="action" value="${action}">
                 <input type="hidden" id="idEmployee" name="idEmployee" value="${employee.id}">
+                <input type="hidden" id="name" name="name" value="${employee.name}">
+                <input type="hidden" id="unitId" name="unitId" value="${employee.unitId}">
                 <h2>Employee</h2>
                 <div class="form-group col-xs-4">
-                    <label for="name" class="control-label col-xs-4">Name:</label>
-                    <input type="text" name="name" id="name" class="form-control" value="${employee.name}" required="true"/>
+                    <label for="newName" class="control-label col-xs-4">Enter new name:</label>
+                    <input type="text" name="newName" id="newName" class="form-control" value="${employee.name}" required="true"/>
 
                     <br></br>
                     <button type="submit" class="btn btn-primary  btn-md">Accept</button> 
