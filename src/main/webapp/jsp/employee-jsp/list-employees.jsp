@@ -53,7 +53,7 @@
                         </c:if>
                         <tr class="${classSucess}">
                             <td>
-                                <a href="/employee?idEmployee=${employee.id}&searchAction=searchById&operation=edit">${employee.id}</a>
+                                <a href="${pageContext.request.contextPath}/employee?idEmployee=${employee.id}&searchAction=searchById&operation=edit">${employee.id}</a>
                             </td>
                             <td>${employee.name}</td>
                             <td>${employee.departmentHead}</td>
@@ -84,7 +84,7 @@
     <form action="jsp/employee-jsp/new-employee.jsp">
         <button type="submit" class="btn btn-primary btn-md">New employee</button>
     </form>
-    <form action="/unit">
+    <form action="${pageContext.request.contextPath}/unit">
         <button type="submit" class="btn btn-check btn-md">To units list</button>
     </form>
 </div>
